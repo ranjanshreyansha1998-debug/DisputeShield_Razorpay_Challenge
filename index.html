@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dispute Shield Prototype</title>
+<style>
+:root{--bg:#fff;--pn:#f6f8fb;--ink:#14213d;--mut:#5b6472;--rule:#dde2ea;--acc:#1d4ed8;--red:#b3261e;--amb:#a25b00;--grn:#1e7b3a;--sel:#eef3ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13161b;--pn:#1a1e25;--ink:#eceef2;--mut:#9aa3af;--rule:#2f3540;--acc:#7da2ff;--red:#ff8a80;--amb:#e5a54b;--grn:#6fcf8e;--sel:#1c2433}}
+:root[data-theme="dark"]{--bg:#13161b;--pn:#1a1e25;--ink:#eceef2;--mut:#9aa3af;--rule:#2f3540;--acc:#7da2ff;--red:#ff8a80;--amb:#e5a54b;--grn:#6fcf8e;--sel:#1c2433}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,"Segoe UI",Roboto,Arial,sans-serif}
+.w{max-width:1080px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:0 0 10px}h3{font-size:12px;margin:18px 0 6px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+p{margin:4px 0 8px}ul{margin:4px 0 8px;padding-left:18px}li{margin:3px 0}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border:1px solid var(--rule);background:var(--pn);border-radius:8px;padding:16px 20px}
+.mut{color:var(--mut);font-size:13px}
+.chip{display:inline-block;border:1px solid var(--rule);border-radius:999px;padding:1px 10px;font-size:12px;color:var(--mut);background:var(--bg);margin:2px 4px 2px 0}
+.chip.on{color:var(--grn);border-color:var(--grn)}.chip.off{opacity:.55}button.chip{font-family:inherit;font-size:12px;line-height:1.5;cursor:pointer}button.chip:hover{border-color:var(--acc);color:var(--acc)}a{color:var(--acc)}
+nav{display:flex;gap:2px;margin:18px 0 16px;border-bottom:1px solid var(--rule);overflow-x:auto}
+nav button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 16px;font:inherit;color:var(--mut);cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acc);font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btn{font:inherit;padding:8px 16px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:6px;cursor:pointer}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}
+.stats,.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.card{border:1px solid var(--rule);border-radius:8px;padding:14px 16px;background:var(--bg)}
+.card b{display:block;font-size:24px;line-height:1.3}.go{font:inherit;text-align:left;cursor:pointer;color:inherit;background:var(--bg)}.go:hover{background:var(--sel)}.flow{display:flex;align-items:stretch;margin-bottom:4px}.nd{flex:1 1 0;min-width:0;border:1px solid var(--rule);border-radius:8px;padding:12px;background:var(--bg);font-size:13px}.nd b{display:block;font-size:14px;margin-bottom:4px}.nd>span{display:block;color:var(--mut)}.ar{flex:0 0 24px;align-self:center;height:2px;background:var(--mut);position:relative}.ar:after{content:"";position:absolute;right:0;top:-4px;border-left:7px solid var(--mut);border-top:5px solid transparent;border-bottom:5px solid transparent}.rt{margin-top:6px;border-top:1px solid var(--rule);padding-top:5px;font-size:12px}.rt em{font-style:normal;font-weight:600}.fb{text-align:center;border-top:1px dashed var(--mut);margin:4px 0 6px;padding-top:4px;font-size:12px;color:var(--mut)}.nd{padding:7px 10px;font-size:12px}.nd b{font-size:13px;margin-bottom:1px}.ar{flex:0 0 18px}.fb{margin:2px 0 4px;padding-top:2px}@media (max-width:820px){.flow{flex-direction:column}.ar{width:2px;height:22px;flex:0 0 22px;align-self:center}.ar:after{right:auto;left:-4px;top:auto;bottom:0;border:5px solid transparent;border-top:7px solid var(--mut);border-bottom:0}}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px}
+@media (max-width:820px){.stats,.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}}
+.row{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:11px 10px;font:inherit;color:inherit;cursor:pointer}
+.row[aria-pressed="true"]{background:var(--sel)}
+.row .t{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.sc{font-weight:700}.hi{color:var(--red)}.md{color:var(--amb)}.lo{color:var(--grn)}
+.pill{display:inline-block;border-radius:4px;padding:0 7px;font-size:12px;border:1px solid var(--rule);color:var(--mut)}
+.pill.High{color:var(--red);border-color:var(--red)}.pill.Medium{color:var(--amb);border-color:var(--amb)}.pill.Low{color:var(--grn);border-color:var(--grn)}
+.sig{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--rule)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top}th{color:var(--mut);font-weight:600}
+label.l{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--rule)}
+input[type=number],select,textarea{font:inherit;padding:6px 8px;background:var(--bg);color:var(--ink);border:1px solid var(--rule);border-radius:6px}
+input[type=number]{width:120px}textarea{width:100%;min-height:92px;resize:vertical}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.log div{padding:7px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.empty{padding:28px 12px;text-align:center;color:var(--mut)}
+.out{font-size:20px;font-weight:700}
+[hidden]{display:none!important}
+</style></head><body><div class="w">
+<div class="hd"><div>
+<h1>Dispute Shield</h1>
+<div class="mut">Agent for online sellers. Scores open orders for dispute risk before a chargeback is raised. Prototype with synthetic data.</div>
+<div style="margin-top:6px"><span class="chip on" id="state">Active</span></div>
+</div><div><button class="btn pri" id="scan">Run daily scan</button></div></div>
+<nav role="tablist"><button role="tab" data-v="ov" aria-selected="true">Overview</button><button role="tab" data-v="q" aria-selected="false">Risk Queue</button><button role="tab" data-v="c" aria-selected="false">Controls</button><button role="tab" data-v="m" aria-selected="false">Measurement</button><button role="tab" data-v="d" aria-selected="false">Data Sources</button></nav>
+
+<section id="ov">
+<div class="stats"><div class="card"><span class="mut">Orders scored</span><b id="s1">0</b></div><button class="card go" data-f="fl"><span class="mut">Flagged</span><b id="s2">0</b><span class="mut">View orders</span></button><button class="card go" data-f="ap"><span class="mut">Awaiting approval</span><b id="s3">0</b><span class="mut">View orders</span></button><button class="card go" data-f="dn"><span class="mut">Actions taken</span><b id="s4">0</b><span class="mut">View orders</span></button></div>
+<h3>How the agent works</h3>
+<div class="flow"><div class="nd"><b>1. Observe</b><span>Scans, messages, order data</span></div><i class="ar"></i><div class="nd"><b>2. Score</b><span>Risk 0 to 100, confidence</span></div><i class="ar"></i><div class="nd"><b>3. Choose action</b><span>Update, exchange, refund, evidence</span></div><i class="ar"></i><div class="nd"><b>4. Route</b><span>Automatic, approval or monitor</span></div><i class="ar"></i><div class="nd"><b>5. Learn</b><span>120-day outcome, edits</span></div></div><div class="fb">Feedback loop: outcomes and merchant edits recalibrate scoring and thresholds</div>
+<h3>Activity</h3><div class="card log" id="log"><div class="mut">No scan run yet. Select Run daily scan.</div></div>
+</section>
+
+<section id="q" hidden>
+<div class="grid"><div>
+<div class="bar" style="margin:0 0 8px"><span class="chip on">Cards</span><span class="chip off" title="Planned for phase 2">UPI (phase 2)</span>
+<select id="flt" aria-label="Filter"><option value="all">All orders</option><option value="fl">Flagged</option><option value="ap">Needs approval</option><option value="dn">Actions taken</option><option value="au">Automatic</option><option value="mo">Monitor only</option></select></div>
+<div id="list"></div></div>
+<div class="card" id="det"></div></div>
+</section>
+
+<section id="c" hidden>
+<div class="grid"><div><h2>Merchant controls</h2><div class="card">
+<label class="l"><span>Pause all actions</span><input type="checkbox" id="paused"></label>
+<label class="l"><span>Allow automatic refunds</span><input type="checkbox" id="auto"></label>
+<label class="l"><span>Automatic refund cap per order (INR)</span><input type="number" id="cap" value="5000" min="0" step="500"></label>
+<label class="l"><span>Daily refund budget (INR)</span><input type="number" id="bud" value="25000" min="0" step="1000"></label>
+<label class="l"><span>Minimum risk score to act</span><input type="number" id="min" value="60" min="0" max="100"></label></div>
+<h3>Runs without approval</h3><ul><li>Status updates from pre-approved templates</li><li>Evidence pack preparation, kept internal</li></ul>
+<h3>Always needs approval</h3><ul><li>Exchange offers</li><li>Refunds above the cap, or any refund while automatic refunds are off</li><li>Any order with confidence below 50%</li></ul></div>
+<div><h2>Permissions and trust</h2>
+<h3>Agent can read</h3><ul><li>Orders, card payment status and dispute records</li><li>Shipment status and customer messages linked to the order</li></ul>
+<h3>Agent can do</h3><ul><li>Send templated messages</li><li>Issue refunds within the cap, after approval where required</li></ul>
+<h3>Agent cannot do</h3><ul><li>See full card details or change prices</li><li>Message customers outside approved templates</li><li>Delay or discourage a refund the customer is owed</li></ul>
+<h3>Failure handling</h3><ul><li>Courier data missing or stale: review only, no action</li><li>Daily budget reached: refunds move to approval</li><li>Every action is logged with the signals used</li><li>Sent messages cannot be recalled, so templates are approved in advance</li></ul></div></div>
+</section>
+
+<section id="m" hidden>
+<div class="grid"><div><h2>Value estimator</h2><p class="mut">All inputs are assumptions to validate with merchant data.</p><div class="card">
+<label class="l"><span>Monthly card sales (INR crore)</span><input type="number" id="i1" value="5" min="0" step="0.5"></label>
+<label class="l"><span>Chargeback ratio (%)</span><input type="number" id="i2" value="1" min="0" step="0.1"></label>
+<label class="l"><span>Disputes avoided (%)</span><input type="number" id="i3" value="25" min="0" max="100"></label>
+<label class="l"><span>Razorpay success fee (% of value protected)</span><input type="number" id="i4" value="10" min="0" max="100"></label>
+<label class="l"><span>Average order value (INR)</span><input type="number" id="i5" value="11900" min="1" step="100"></label>
+<label class="l"><span>Merchant minutes per dispute</span><input type="number" id="i6" value="30" min="0"></label>
+<label class="l"><span>Razorpay minutes per dispute</span><input type="number" id="i7" value="20" min="0"></label>
+<label class="l"><span>Razorpay cost per hour (INR)</span><input type="number" id="i8" value="400" min="0" step="50"></label></div>
+<div class="card" style="margin-top:12px"><span class="mut">Disputed value per month</span><div class="out" id="o1"></div><span class="mut">Value protected per month</span><div class="out" id="o2"></div><span class="mut">Razorpay fee per merchant per month</span><div class="out" id="o3"></div><span class="mut">Disputes avoided</span><div class="out" id="o4"></div><span class="mut">Merchant time saved</span><div class="out" id="o5"></div><span class="mut">Razorpay dispute handling time saved</span><div class="out" id="o6"></div><span class="mut">Razorpay ops cost saved</span><div class="out" id="o7"></div></div></div>
+<div><h2>Metrics</h2><table><tr><th>Metric</th><th>Assumed target</th></tr><tr><td>Disputes avoided versus holdout</td><td>25%</td></tr><tr><td>Chargeback-to-sales ratio</td><td>Down 20% in 90 days</td></tr><tr><td>Approval rate</td><td>Above 60%</td></tr><tr><td>False positive rate</td><td>Below 30%</td></tr><tr><td>Settlement holds avoided</td><td>Zero in pilot</td></tr></table>
+<h3>How Razorpay earns</h3><ul><li>Success fee on disputes avoided, or a paid Agent Studio tier</li><li>Lower dispute handling time and cost for Razorpay (see the estimator)</li><li>Fewer settlement holds, which supports merchant retention</li><li>Dispute ratio as a possible input to credit offers (speculative)</li></ul>
+<h3>Why a fixed rule is weaker</h3><ul><li>A rule such as refund after 7 days of delay ignores value, scan history, messages and category</li><li>The agent weighs these together and picks one of four actions</li></ul></div></div>
+</section>
+<section id="d" hidden><h2>Data sources</h2><p class="mut">All orders, scores and probabilities in this prototype are synthetic. The connections below are the intended design, not live integrations.</p>
+<table><tr><th>Source</th><th>What the agent reads</th><th>What it can do</th><th>Status</th></tr>
+<tr><td>Razorpay payments</td><td>Order amount, card payment status, refund status, dispute records</td><td>Issue refunds within the cap, after approval where required</td><td>Intended. Synthetic here</td></tr>
+<tr><td>Shiprocket shipments</td><td>Courier status, last scan, delay in days, return to origin</td><td>Read only</td><td>Intended. Razorpay lists Shiprocket among platforms Agent Studio can connect to [4]. Field-level access not verified</td></tr>
+<tr><td>Approved message templates</td><td>Merchant-approved text for status, refund and exchange messages</td><td>Send to the customer by WhatsApp or email</td><td>Intended. Channel and customer consent to be confirmed</td></tr>
+<tr><td>Customer messages (phase 2)</td><td>Unanswered messages from the merchant's support channel</td><td>Read only</td><td>Not in MVP. Needs a connected support channel</td></tr></table>
+<h3>Public sources</h3><ul>
+<li>[1] <a href="https://razorpay.com/docs/payments/disputes/chargeback-types-and-prevention" target="_blank" rel="noopener">Razorpay Docs, Chargeback Types and Prevention</a>: 120-day window to raise a chargeback; banks may hold remittances if chargeback volume stays elevated</li>
+<li>[2] <a href="https://inc42.com/buzz/5-1-lakh-complaints-filed-against-ecommerce-platforms-in-2025-govt/" target="_blank" rel="noopener">Inc42, 13 Aug 2026</a>, citing a government reply in Parliament: 5.1 lakh National Consumer Helpline complaints against e-commerce and quick commerce platforms in 2025, of which 79,818 were non-delivery. Mostly against large platforms</li>
+<li>[3] <a href="https://razorpay.com/blog/agent-studio-ai-agents-by-razorpay/" target="_blank" rel="noopener">Razorpay Blog, Agent Studio, 12 Mar 2026</a>: list of 8 launch agents; Dispute Responder auto-responds to chargebacks</li>
+<li>[4] <a href="https://razorpay.com/newsroom/razorpay-launches-the-worlds-first-ai-native-agent-studio-for-payments-at-ftx26-powered-by-anthropics-claude/" target="_blank" rel="noopener">Razorpay Newsroom, 12 Mar 2026</a>: Agent Studio connectors (Shopify, Shiprocket, WhatsApp and others) and the Agentic Dashboard</li>
+<li>[5] <a href="https://www.prnewswire.com/apac/news-releases/e-commerce-upi-sparks-a-credit-card-boom-in-india-while-pix-overtakes-card-dominance-in-brazil-ebanx-finds-302684596.html" target="_blank" rel="noopener">EBANX Beyond Borders 2026 (press release, 12 Feb 2026)</a>: UPI-type methods about 75% of India e-commerce volume; domestic cards the fastest-growing method</li></ul>
+<h3>Key assumptions</h3><ul><li>Merchant profile, 1% chargeback ratio, 25% disputes avoided, 10% fee, minutes per dispute and hourly cost are assumptions (see Measurement)</li><li>Dispute chances in the Risk Queue are illustrative model output, not a trained model</li></ul></section></div>
+<script>
+const $=i=>document.getElementById(i),inr=n=>"INR "+n.toLocaleString("en-IN");
+const O=[
+{id:"10482",item:"Laptop",value:18499,risk:91,conf:88,action:"refund",sig:[["Returned to origin 3 days ago","High"],["No refund issued on card payment","High"],["2 customer messages unanswered","High"],["Order value above INR 15,000","Medium"]],alts:[["Do nothing",91],["Status update",70],["Refund now",5]],why:"Goods are back with the seller, so the customer is owed a refund and a dispute would be lost. Refunding early avoids the chargeback and its handling cost."},
+{id:"10475",item:"Headphones",value:6299,risk:74,conf:81,action:"status",sig:[["In transit 8 days, last scan 5 days ago","High"],["1 customer message unanswered","Medium"],["Prepaid card order","Low"]],alts:[["Do nothing",74],["Status update",38],["Offer exchange",45]],why:"The parcel is delayed, not lost. A status update with a new date addresses the main dispute trigger at no cost."},
+{id:"10469",item:"Phone case",value:2450,risk:63,conf:45,action:"exchange",sig:[["Customer says item not as described","Medium"],["Photos not yet received","Medium"],["Delivered","Low"]],alts:[["Do nothing",63],["Offer exchange",30],["Status update",58]],why:"Evidence is thin and confidence is below 50%, so the agent prepares an exchange offer for the merchant to review."},
+{id:"10463",item:"Tablet",value:11900,risk:31,conf:84,action:"none",sig:[["Delivered and signed for","Low"],["No customer messages","Low"],["Returning customer","Low"]],alts:[["Do nothing",31]],why:"No dispute signals. Monitor only."},
+{id:"10458",item:"Speaker",value:3150,risk:22,conf:79,action:"none",sig:[["Delayed 3 days","Low"],["Customer message answered same day","Low"]],alts:[["Do nothing",22]],why:"The delay is short and the customer has a reply. Monitor only."}];
+const A={refund:"Refund now",status:"Send status update",exchange:"Offer exchange",none:"No action"};
+const T={status:o=>`Hi, your order #${o.id} (${o.item}) is delayed with the courier. The new expected delivery date is 14 October. You can reply here for help, or ask for a refund at any time.`,refund:o=>`Hi, your order #${o.id} was returned to us by the courier. We have started a full refund of ${inr(o.value)} to your original payment method. It should reflect in 5 to 7 working days.`,exchange:o=>`Hi, we are sorry the ${o.item} did not match your expectation. We can send a replacement, or refund you in full if you prefer. Reply 1 for replacement or 2 for refund.`,none:()=>""};
+let tab="ov",sel="10482",scanned=false;const st={},LG=[];
+const cfg=()=>({p:$("paused").checked,au:$("auto").checked,cap:+$("cap").value,mn:+$("min").value});
+const act=o=>(st[o.id]&&st[o.id].action)||o.action;
+function route(o){const c=cfg(),a=act(o);if(c.p)return"Paused";if(o.risk<c.mn||a==="none")return"Monitor only";if(o.conf<50)return"Review only, low confidence";if(a==="status")return"Runs automatically";if(a==="refund"&&c.au&&o.value<=c.cap)return"Runs automatically";return"Needs approval"}
+const grp=r=>r==="Needs approval"||r.startsWith("Review")?"ap":r==="Runs automatically"?"au":"mo";
+const cl=r=>r>=70?"hi":r>=50?"md":"lo";
+function done(o,txt,auto){st[o.id]={...(st[o.id]||{}),done:txt};LG.unshift((auto?"Automatic: ":"Approved: ")+txt+" (order #"+o.id+")")}
+function scan(){scanned=true;LG.length=0;const c=cfg();LG.unshift("Scan complete: 4,212 orders scored, "+O.filter(o=>o.risk>=c.mn).length+" flagged (synthetic)");
+if(c.p){LG.unshift("Agent is paused. No actions taken.")}else O.forEach(o=>{if(!(st[o.id]&&st[o.id].done)&&route(o)==="Runs automatically")done(o,"status update sent",true)});render()}
+function render(){
+document.querySelectorAll("section").forEach(s=>s.hidden=s.id!==tab);
+document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===tab));
+const c=cfg();$("state").textContent=c.p?"Paused":"Active";$("state").className="chip "+(c.p?"":"on");
+const d=O.filter(o=>st[o.id]&&st[o.id].done);
+$("s1").textContent=scanned?"4,212":"0";$("s2").textContent=scanned?O.filter(o=>o.risk>=c.mn).length:0;
+$("s3").textContent=scanned?O.filter(o=>!(st[o.id]&&st[o.id].done)&&grp(route(o))==="ap").length:0;$("s4").textContent=d.length;
+$("log").innerHTML=LG.length?LG.map(x=>"<div>"+x+"</div>").join(""):'<div class="mut">No scan run yet. Select Run daily scan.</div>';
+const f=$("flt").value,L=O.filter(o=>{const dn=!!(st[o.id]&&st[o.id].done);return f==="all"||(f==="fl"?o.risk>=c.mn:f==="dn"?dn:f==="ap"?grp(route(o))==="ap"&&!dn:grp(route(o))===f)});if(L.length&&!L.some(x=>x.id===sel))sel=L[0].id;
+$("list").innerHTML=!scanned?'<div class="empty">No orders loaded.<br>Run the daily scan to score open orders.</div>':L.map(o=>`<button class="row" aria-pressed="${o.id===sel}" data-id="${o.id}"><div class="t"><span>#${o.id} ${o.item}</span><span class="sc ${cl(o.risk)}">${o.risk}</span></div><div class="mut">${inr(o.value)} | ${A[act(o)]} | ${st[o.id]&&st[o.id].done?"Done":route(o)}</div></button>`).join("")||'<div class="empty">No orders in this filter.</div>';
+const o=O.find(x=>x.id===sel),s=st[o.id]||{},a=act(o),r=route(o);
+$("det").innerHTML=!scanned?'<div class="empty">Select an order after the scan.</div>':`<h2>Order #${o.id}, ${o.item}</h2><p class="mut">${inr(o.value)} | Card | Risk ${o.risk} | Confidence ${o.conf}%</p>
+<h3>Signals used</h3>${o.sig.map(x=>`<div class="sig"><span>${x[0]}</span><span class="pill ${x[1]}">${x[1]}</span></div>`).join("")}
+<h3>Recommended action</h3><p><strong>${A[a]}</strong> <span class="pill">${r}</span></p><p>${o.why}</p>
+<h3>Options compared (illustrative model output)</h3><table><tr><th>Option</th><th>Estimated dispute chance after</th></tr>${o.alts.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}%</td></tr>`).join("")}</table>
+${a!=="none"&&!s.done?`<h3>Customer message</h3><textarea id="msg" aria-label="Customer message">${T[a](o)}</textarea>`:""}
+${s.done?`<p style="margin-top:12px"><strong>${s.done}</strong></p>`:`<div class="bar"><button class="btn pri" id="ap" ${r==="Paused"||r==="Monitor only"?"disabled":""}>${r==="Runs automatically"?"Send now":"Approve and send"}</button><select id="chg" aria-label="Change action">${Object.keys(A).map(k=>`<option value="${k}" ${k===a?"selected":""}>${A[k]}</option>`).join("")}</select><button class="btn" id="sk">Skip</button></div>`}`;
+if(scanned&&!s.done){$("chg").onchange=e=>{st[o.id]={...s,action:e.target.value};render()};
+$("sk").onclick=()=>{st[o.id]={...s,done:"Skipped. Feedback saved for learning."};LG.unshift("Skipped order #"+o.id+", feedback saved");render()};
+$("ap").onclick=()=>{done(o,a==="refund"?"refund of "+inr(o.value)+" queued":a==="status"?"status update sent":a==="exchange"?"exchange offer sent":"logged");render()}}
+document.querySelectorAll(".row").forEach(b=>b.onclick=()=>{sel=b.dataset.id;render()});
+const n=k=>+$(k).value||0,dv=n("i1")*1e7*n("i2")/100,pv=dv*n("i3")/100,L5=x=>"INR "+(x/1e5).toFixed(2)+" lakh";
+$("o1").textContent=L5(dv);$("o2").textContent=L5(pv);$("o3").textContent=inr(Math.round(pv*n("i4")/100));const av=n("i5")?pv/n("i5"):0,rh=av*n("i7")/60;$("o4").textContent=av.toFixed(1)+" per month";$("o5").textContent=(av*n("i6")/60).toFixed(1)+" hours per month";$("o6").textContent=rh.toFixed(1)+" hours per month";$("o7").textContent=inr(Math.round(rh*n("i8")))+" per month"}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.v;render()});
+$("scan").onclick=scan;document.querySelectorAll(".src").forEach(b=>b.onclick=()=>{tab="d";render()});document.querySelectorAll(".go").forEach(b=>b.onclick=()=>{$("flt").value=b.dataset.f;tab="q";render()});
+document.querySelectorAll("input,select").forEach(i=>i.onchange=render);
+document.querySelectorAll("#m input").forEach(i=>i.oninput=render);
+render();
+</script></body></html>
